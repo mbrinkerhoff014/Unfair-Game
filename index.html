@@ -7,8 +7,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
+
   body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-  #spinner { margin: 20px auto; width: 300px; height: 300px; }
+  #spinnerContainer { display: flex; justify-content: center; align-items: center; margin: 20px; }
+  #spinner { width: 300px; height: 300px; }
+  #result { font-family: 'Titan One', cursive; font-size: 48px; margin-left: 40px; }
   .group { margin: 10px; display: inline-block; border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; }
   button { margin: 5px; padding: 5px 10px; }
 </style>
@@ -16,7 +20,10 @@
 <body>
 <h1>The Unfair Game</h1>
 <button onclick="setupGroups()">Pick Number of Groups</button>
-<canvas id="spinner"></canvas>
+<div id="spinnerContainer">
+  <canvas id="spinner"></canvas>
+  <div id="result"></div>
+</div>
 <button onclick="spin()">Spin!</button>
 <div id="groups"></div>
 
@@ -67,7 +74,8 @@ chart = new Chart(ctx, {
   options: {
     responsive: false,
     plugins: {
-      legend: { display: true, position: "bottom" }
+      legend: { display: false },
+      tooltip: { enabled: false }
     }
   }
 });
@@ -78,7 +86,7 @@ function spin() {
     const finalRotation = spinDegrees % 360;
     const sliceAngle = 360 / spinnerValues.length;
     const index = Math.floor((360 - finalRotation + sliceAngle / 2) % 360 / sliceAngle);
-    alert(`You got: ${spinnerValues[index]}`);
+    document.getElementById("result").innerText = spinnerValues[index];
   }});
 }
 </script>
