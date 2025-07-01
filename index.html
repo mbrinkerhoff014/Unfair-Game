@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Unfair Game</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+  #spinner { margin: 20px auto; width: 300px; height: 300px; }
+  .group { margin: 10px; display: inline-block; border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; }
+  button { margin: 5px; padding: 5px 10px; }
+</style>
+</head>
+<body>
+<h1>The Unfair Game</h1>
+<button onclick="setupGroups()">Pick Number of Groups</button>
+<canvas id="spinner"></canvas>
+<button onclick="spin()">Spin!</button>
+<div id="groups"></div>
+
+<script>
+const spinnerValues = [10, 20, 30, 50, -10, -20, -30, "Pick Your Poison"];
+let chart;
+let groups = [];
+
+function setupGroups() {
+  let num = prompt("How many groups?");
+  if (isNaN(num) || num <= 0) return alert("Enter a valid number.");
+
+  groups = [];
+  const container = document.getElementById("groups");
+  container.innerHTML = "";
+
+  for (let i = 0; i < num; i++) {
+    groups.push({ name: `Group ${i + 1}`, points: 0 });
+    const div = document.createElement("div");
+    div.className = "group";
+    div.innerHTML = `
+      <h3>Group ${i + 1}</h3>
+      <p id="points-${i}">Points: 0</p>
+      <button onclick="changePoints(${i}, 10)">+10</button>
+      <button onclick="changePoints(${i}, -10)">-10</button>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function changePoints(index, amount) {
+  groups[index].points += amount;
+  document.getElementById(`points-${index}`).innerText = `Points: ${groups[index].points}`;
+}
+
+const colors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336", "#00bcd4", "#ffc107", "#e91e63"];
+
+const ctx = document.getElementById("spinner").getContext("2d");
+chart = new Chart(ctx, {
+  type: "pie",
+  data: {
+    labels: spinnerValues,
+    datasets: [{
+      data: spinnerValues.map(() => 1),
+      backgroundColor: colors,
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      legend: { display: true, position: "bottom" }
+    }
+  }
+});
+
+function spin() {
+  const spinDegrees = Math.floor(Math.random() * 360) + 3600;
+  gsap.to("#spinner", { rotation: spinDegrees, duration: 4, ease: "power4.out", onComplete: () => {
+    const finalRotation = spinDegrees % 360;
+    const sliceAngle = 360 / spinnerValues.length;
+    const index = Math.floor((360 - finalRotation + sliceAngle / 2) % 360 / sliceAngle);
+    alert(`You got: ${spinnerValues[index]}`);
+  }});
+}
+</script>
+</body>
+</html>
