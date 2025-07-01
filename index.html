@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Unfair Game</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
@@ -14,13 +15,15 @@
   #spinnerContainer { display: flex; justify-content: center; align-items: center; margin: 20px; }
   #spinner { width: 300px; height: 300px; }
   #result { font-family: 'Titan One', cursive; font-size: 48px; margin-left: 40px; }
-  .group { margin: 10px; display: inline-block; border: 1px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; font-family: 'Balsamiq Sans', cursive; }
+  .group { margin: 10px; display: inline-block; border: 2px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; font-family: 'Balsamiq Sans', cursive; color: #fff; }
   button { margin: 5px; padding: 5px 10px; }
 </style>
 </head>
 <body>
 <h1>The Unfair Game</h1>
-<button onclick="setupGroups()">Pick Number of Groups</button>
+<button onclick="addGroup()">+ Group</button>
+<button onclick="removeGroup()">- Group</button>
+<button onclick="resetScores()">Reset Scores</button>
 <div id="spinnerContainer">
   <canvas id="spinner"></canvas>
   <div id="result"></div>
@@ -30,37 +33,47 @@
 
 <script>
 const spinnerValues = [10, 20, 30, 50, -10, -20, -30, "Pick Your Poison"];
+const groupColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336", "#00bcd4", "#ffc107", "#e91e63"];
 let chart;
 let groups = [];
 
-function setupGroups() {
-  let num = prompt("How many groups?");
-  if (isNaN(num) || num <= 0) return alert("Enter a valid number.");
-
-  groups = [];
+function renderGroups() {
   const container = document.getElementById("groups");
   container.innerHTML = "";
 
-  for (let i = 0; i < num; i++) {
-    groups.push({ name: `Group ${i + 1}`, points: 0 });
+  groups.forEach((group, i) => {
     const div = document.createElement("div");
     div.className = "group";
+    div.style.backgroundColor = groupColors[i % groupColors.length];
     div.innerHTML = `
       <h3>Group ${i + 1}</h3>
-      <p id="points-${i}">Points: 0</p>
+      <p id="points-${i}">Points: ${group.points}</p>
       <button onclick="changePoints(${i}, 10)">+10</button>
       <button onclick="changePoints(${i}, -10)">-10</button>
     `;
     container.appendChild(div);
-  }
+  });
+}
+
+function addGroup() {
+  groups.push({ name: `Group ${groups.length + 1}`, points: 0 });
+  renderGroups();
+}
+
+function removeGroup() {
+  if (groups.length > 0) groups.pop();
+  renderGroups();
+}
+
+function resetScores() {
+  groups.forEach(g => g.points = 0);
+  renderGroups();
 }
 
 function changePoints(index, amount) {
   groups[index].points += amount;
   document.getElementById(`points-${index}`).innerText = `Points: ${groups[index].points}`;
 }
-
-const colors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336", "#00bcd4", "#ffc107", "#e91e63"];
 
 const ctx = document.getElementById("spinner").getContext("2d");
 chart = new Chart(ctx, {
@@ -69,7 +82,7 @@ chart = new Chart(ctx, {
     labels: spinnerValues,
     datasets: [{
       data: spinnerValues.map(() => 1),
-      backgroundColor: colors,
+      backgroundColor: groupColors,
     }]
   },
   options: {
@@ -79,10 +92,7 @@ chart = new Chart(ctx, {
       tooltip: { enabled: false },
       datalabels: {
         color: '#fff',
-        font: {
-          weight: 'bold',
-          size: 14
-        },
+        font: { weight: 'bold', size: 14 },
         formatter: function(value, context) {
           return spinnerValues[context.dataIndex];
         }
@@ -101,7 +111,15 @@ function spin() {
     document.getElementById("result").innerText = spinnerValues[index];
   }});
 }
+
+// Initialize with 4 groups
+groups = [
+  { name: "Group 1", points: 0 },
+  { name: "Group 2", points: 0 },
+  { name: "Group 3", points: 0 },
+  { name: "Group 4", points: 0 }
+];
+renderGroups();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </body>
 </html>
