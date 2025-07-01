@@ -4,19 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Unfair Game</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap');
 
   body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-  #spinnerContainer { display: flex; justify-content: center; align-items: center; margin: 20px; }
-  #spinner { width: 300px; height: 300px; }
-  #result { font-family: 'Titan One', cursive; font-size: 48px; margin-left: 40px; }
+  #result { font-family: 'Titan One', cursive; font-size: 48px; margin-top: 40px; }
   .group { margin: 10px; display: inline-block; border: 2px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; font-family: 'Balsamiq Sans', cursive; color: #fff; }
+  .points-btn { font-family: 'Balsamiq Sans', cursive; margin: 5px; padding: 5px 10px; }
   button { margin: 5px; padding: 5px 10px; }
+  h1 { font-family: 'Titan One', cursive; }
 </style>
 </head>
 <body>
@@ -24,18 +22,17 @@
 <button onclick="addGroup()">+ Group</button>
 <button onclick="removeGroup()">- Group</button>
 <button onclick="resetScores()">Reset Scores</button>
-<div id="spinnerContainer">
-  <canvas id="spinner"></canvas>
+<div>
+  <button onclick="randomize()">Randomize!</button>
   <div id="result"></div>
 </div>
-<button onclick="spin()">Spin!</button>
 <div id="groups"></div>
 
 <script>
 const spinnerValues = [10, 20, 30, 50, -10, -20, -30, "Pick Your Poison"];
 const groupColors = ["#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336", "#00bcd4", "#ffc107", "#e91e63"];
-let chart;
 let groups = [];
+let randomizing = false;
 
 function renderGroups() {
   const container = document.getElementById("groups");
@@ -48,8 +45,8 @@ function renderGroups() {
     div.innerHTML = `
       <h3>Group ${i + 1}</h3>
       <p id="points-${i}">Points: ${group.points}</p>
-      <button onclick="changePoints(${i}, 10)">+10</button>
-      <button onclick="changePoints(${i}, -10)">-10</button>
+      <button class="points-btn" onclick="changePoints(${i}, 10)">+10</button>
+      <button class="points-btn" onclick="changePoints(${i}, -10)">-10</button>
     `;
     container.appendChild(div);
   });
@@ -75,41 +72,22 @@ function changePoints(index, amount) {
   document.getElementById(`points-${index}`).innerText = `Points: ${groups[index].points}`;
 }
 
-const ctx = document.getElementById("spinner").getContext("2d");
-chart = new Chart(ctx, {
-  type: "pie",
-  data: {
-    labels: spinnerValues,
-    datasets: [{
-      data: spinnerValues.map(() => 1),
-      backgroundColor: groupColors,
-    }]
-  },
-  options: {
-    responsive: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: false },
-      datalabels: {
-        color: '#fff',
-        font: { weight: 'bold', size: 14 },
-        formatter: function(value, context) {
-          return spinnerValues[context.dataIndex];
-        }
-      }
-    }
-  },
-  plugins: [ChartDataLabels]
-});
+function randomize() {
+  if (randomizing) return;
+  randomizing = true;
+  let count = 0;
+  const totalCycles = Math.floor(Math.random() * 20) + 30;
 
-function spin() {
-  const spinDegrees = Math.floor(Math.random() * 360) + 3600;
-  gsap.to("#spinner", { rotation: spinDegrees, duration: 4, ease: "power4.out", onComplete: () => {
-    const finalRotation = spinDegrees % 360;
-    const sliceAngle = 360 / spinnerValues.length;
-    const index = Math.floor((360 - finalRotation + sliceAngle / 2) % 360 / sliceAngle);
+  const interval = setInterval(() => {
+    const index = count % spinnerValues.length;
     document.getElementById("result").innerText = spinnerValues[index];
-  }});
+    count++;
+    if (count > totalCycles) {
+      clearInterval(interval);
+      document.getElementById("result").innerText = spinnerValues[Math.floor(Math.random() * spinnerValues.length)];
+      randomizing = false;
+    }
+  }, 100);
 }
 
 // Initialize with 4 groups
