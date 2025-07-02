@@ -9,7 +9,16 @@
   @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap');
 
-  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; position: relative; }
+  #fullscreenBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
   #result { font-family: 'Titan One', cursive; font-size: 64px; margin-top: 40px; display: inline-block; background: #eee; border-radius: 20px; padding: 20px 40px; border: 2px solid #333; }
   .group { margin: 10px; display: inline-block; border: 2px solid #ccc; border-radius: 10px; padding: 10px; width: 150px; font-family: 'Balsamiq Sans', cursive; color: #fff; }
   .group p { font-size: 24px; }
@@ -19,6 +28,7 @@
 </style>
 </head>
 <body>
+<button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
 <h1>The Unfair Game</h1>
 <button onclick="addGroup()">+ Group</button>
 <button onclick="removeGroup()">- Group</button>
@@ -89,6 +99,16 @@ function randomize() {
       randomizing = false;
     }
   }, 100);
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
 }
 
 // Initialize with 4 groups
